@@ -1,7 +1,7 @@
-## ♻️ swwwcycle 
+##  🌀 swwwcycle 
 ### custom wallpaper cycler with tray icon for [swww](https://github.com/LGFae/swww)
 
-![demo](./demo.gif)
+![demo](./swwwcycle.gif)
 
 
 ### Features
