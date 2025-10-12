@@ -3,19 +3,20 @@
 
 ![demo](./demo.gif)
 
+
+### Features
+
+- control wallpaper rotation from tray icon
+- set wallpaper directory
+- set time for changing wallpaper
+
 ### Dependencies
 
 - swww
 
-### Installation
-
-- just grab the latest executable from the releases page
-- run the executable
-
 ### Building
 
 - On NixOS
-  - enter the dev shell with `nix develop`
   - `nix build`
   - `nix profile install .`
 
