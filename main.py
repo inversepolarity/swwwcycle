@@ -135,7 +135,7 @@ class TrayApp(QMainWindow):
         self.rotation_interval = 60  # seconds
         
         # Create emoji icons
-        self.active_icon = self.create_emoji_icon("♻️")
+        self.active_icon = self.create_emoji_icon("🌀")
         self.paused_icon = self.create_emoji_icon("🧱")
         
         # Create tray icon
