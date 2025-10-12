@@ -1,12 +1,30 @@
 # -*- mode: python ; coding: utf-8 -*-
+import os
+import glob
 
+block_cipher = None
+
+# Find OpenGL library
+libgl_path = '/usr/lib/x86_64-linux-gnu/libGL.so.1'
+binaries = [(libgl_path, '.')] if os.path.exists(libgl_path) else []
+
+# Add other necessary libraries
+extra_libs = [
+    '/usr/lib/x86_64-linux-gnu/libEGL.so.1',
+    '/usr/lib/x86_64-linux-gnu/libGLX.so.0',
+    '/usr/lib/x86_64-linux-gnu/libGLdispatch.so.0',
+]
+
+for lib in extra_libs:
+    if os.path.exists(lib):
+        binaries.append((lib, '.'))
 
 a = Analysis(
     ['main.py'],
     pathex=[],
-    binaries=[],
+    binaries=binaries,
     datas=[],
-    hiddenimports=[],
+    hiddenimports=['PySide6.QtCore', 'PySide6.QtGui', 'PySide6.QtWidgets'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -14,6 +32,7 @@ a = Analysis(
     noarchive=False,
     optimize=0,
 )
+
 pyz = PYZ(a.pure)
 
 exe = EXE(

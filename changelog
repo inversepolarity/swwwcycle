@@ -1,0 +1,6 @@
+--- 0.0.2 ---
+- relocated popup location
+- singleton mode
+- dockerized build
+- portable executable
+- small executable

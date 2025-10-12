@@ -8,8 +8,10 @@ from pathlib import Path
 from PySide6.QtWidgets import (QApplication, QMainWindow, QSystemTrayIcon, QMenu, 
                                 QDialog, QVBoxLayout, QHBoxLayout, QLabel, 
                                 QLineEdit, QPushButton, QSpinBox, QFileDialog, QMessageBox)
+
 from PySide6.QtGui import QIcon, QAction, QPixmap, QPainter, QFont, QCursor
-from PySide6.QtCore import Qt, QTimer, QUrl
+from PySide6.QtCore import Qt, QTimer, QUrl, QLockFile, QDir
+
 
 class ConfigDialog(QDialog):
     def __init__(self, parent=None, current_dir="", current_interval=60):
@@ -61,15 +63,11 @@ class ConfigDialog(QDialog):
         # Add spacing before branding
         layout.addStretch()
         
-        button_layout.addWidget(save_btn)
-        button_layout.addWidget(cancel_btn)
-        layout.addLayout(button_layout)
-        
         # Add fixed spacing before branding
         layout.addSpacing(0)
         
         # Branding/Version indicator
-        branding_label = QLabel('<a href="https://ip.evenzero.in" style="color: palette(link); text-decoration: none;">inversepolarity v0.0.1</a>')
+        branding_label = QLabel('<a href="https://ip.evenzero.in" style="color: palette(link); text-decoration: none;">inversepolarity v0.0.2</a>')
         branding_label.setAlignment(Qt.AlignRight)
         branding_label.setOpenExternalLinks(True)
         branding_label.setCursor(QCursor(Qt.PointingHandCursor))
@@ -129,7 +127,7 @@ class ConfigDialog(QDialog):
 class TrayApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("swwwcycle v0.0.1")
+        self.setWindowTitle("swwwcycle v0.0.2")
         self.is_paused = False
         
         # Default settings
@@ -188,9 +186,20 @@ class TrayApp(QMainWindow):
         painter.end()
         
         return QIcon(pixmap)
-    
+
     def open_config(self):
         dialog = ConfigDialog(None, self.wallpaper_dir, self.rotation_interval)
+        
+        # Position dialog in top right corner near tray icon
+        screen = QApplication.primaryScreen().geometry()
+        dialog_size = dialog.sizeHint()
+        
+        # Position near top-right with some margin
+        x = screen.width() - dialog.width() - 20
+        y = 50  # Small margin from top
+        
+        dialog.move(x, y)
+        
         if dialog.exec() == QDialog.Accepted:
             new_dir, new_interval = dialog.get_values()
             self.wallpaper_dir = new_dir
@@ -207,8 +216,8 @@ class TrayApp(QMainWindow):
             
             # Change wallpaper immediately with new settings
             if not self.is_paused:
-                self.change_wallpaper()
-    
+                self.change_wallpaper()    
+
     def change_wallpaper_now(self):
         """Manually trigger wallpaper change, ignoring pause state"""
         self.change_wallpaper(force=True)
@@ -263,11 +272,33 @@ def check_swww():
     return True
 
 
+def check_single_instance():
+    """Ensure only one instance of the application is running"""
+    lock_file_path = QDir.tempPath() + "/swwwcycle.lock"
+    lock_file = QLockFile(lock_file_path)
+    
+    if not lock_file.tryLock(100):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setWindowTitle("Already Running")
+        msg.setText("swwwcycle is already running")
+        msg.setInformativeText("Only one instance of swwwcycle can run at a time.\nCheck your system tray.")
+        msg.exec()
+        return None
+    
+    return lock_file
+
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     
     # Enable system theme
     app.setStyle("Fusion")  # Use Fusion style which respects system colors
+    
+    # Check for single instance
+    lock_file = check_single_instance()
+    if lock_file is None:
+        sys.exit(1)
     
     # Check if swww is available
     if not check_swww():

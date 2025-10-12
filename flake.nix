@@ -1,5 +1,5 @@
 {
-  description = "Python Qt development environment";
+  description = "swwwcycle";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -16,17 +16,21 @@
       system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-        python = pkgs.python311.withPackages (
+        python-with-packages = pkgs.python311.withPackages (
           ps: with ps; [
             pyside6
-            pyinstaller
           ]
         );
       in
       {
+        packages.default = pkgs.writeShellScriptBin "swwwcycle" ''
+          export QT_QPA_PLATFORM_PLUGIN_PATH="${pkgs.qt6.qtbase.out}/lib/qt-6/plugins"
+          exec ${python-with-packages}/bin/python3 ${./main.py} "$@"
+        '';
+
         devShells.default = pkgs.mkShell {
           buildInputs = [
-            python
+            python-with-packages
             pkgs.qt6.qtbase
             pkgs.qt6.qtdeclarative
             pkgs.qt6.qtwayland
