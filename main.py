@@ -227,12 +227,7 @@ class TrayApp(QMainWindow):
             return
         
         command = f'''
-Q=/tmp/.wallpaper_queue; \
-[ ! -s "$Q" ] && {{ find "{self.wallpaper_dir}" -type f -iname "*.jpg"; \
-find "{self.wallpaper_dir}" -type f -iname "*.jpeg"; \
-find "{self.wallpaper_dir}" -type f -iname "*.png"; \
-find "{self.wallpaper_dir}" -type f -iname "*.webp"; }} | shuf > "$Q"; \
-W=$(head -n1 "$Q"); tail -n +2 "$Q" > "$Q.tmp" && mv "$Q.tmp" "$Q"; \
+W=$(find "{self.wallpaper_dir}" -type f  -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp"  | shuf -n 1)
 swww img --transition-type fade --resize crop "$W"
 '''
         
